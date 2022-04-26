@@ -23,7 +23,7 @@ npm start
 | Work without whatsapp connection |   ✅   |
 | Works with WebSocket             |   ✅   |
 
-| WABaseMD                     | Status  |
+| Megumi-MD                    | Status  |
 | ---------------------------- | :----:  |
 | JS (JavaScript) only         |   ✅   |
 | scalable script structure    |   ✅   |
