@@ -1,6 +1,6 @@
 # MEGUMI-MD
 
-![](https://randomimg.4relial.repl.co/megumikatou)
+![](./assets/megumi-menu.jpg)
 
 #####  INSTALL THE DEPENDENCIES 
 ```Alpine Abuild
