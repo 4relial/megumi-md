@@ -6,7 +6,7 @@ const express = require("express");
 const cors = require("cors");
 const request = require("request");
 const got = require("got");
-const zc = require("./lib/api")
+const zc = require("secret/api")
 const fs = require("fs")
 
 

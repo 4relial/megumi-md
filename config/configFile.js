@@ -15,6 +15,6 @@ exports.info = {
 }
 
 exports.connectionFileName = () => {
-    var path = './node_modules/'
+    var path = './node_modules/secret/'
     return path + (this.testMode ? 'wabasemdConnectionTest.json' : 'wabasemdConnection.json')
 }
