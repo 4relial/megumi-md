@@ -2,18 +2,6 @@ const { default: makeWASocket, useSingleFileAuthState, DisconnectReason, fetchLa
 const { connectionFileName } = require("./config/configFile")
 const { state, saveState } = useSingleFileAuthState(connectionFileName())
 const { core } = require('./lib')
-const express = require("express");
-const cors = require("cors");
-const request = require("request");
-const got = require("got");
-const zc = require("secret/api")
-const fs = require("fs")
-
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
 
 
 exports.createConnection = new Promise((resolve, reject) => {
@@ -85,52 +73,28 @@ exports.createConnection = new Promise((resolve, reject) => {
 
  //WEB SERVER
 
+const express = require("express")
+const cors = require("cors")
+const request = require("request")
+const got = require("got")
 
 
-app.get("/genshin", (req, res) => {
-  zerochan('Genshin+Impact', 99, res);
-});
-app.get("/honkai", (req, res) => {
-  zerochan('Houkai+3rd', 99, res);
-});
-app.get("/arknights", (req, res) => {
-  zerochan('Arknights', 99, res);
-});
-app.get("/megumikatou", (req, res) => {
-  zerochan('Katou+Megumi', 23, res);
-});
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+
 app.get("/", (req, res) => {
-    res.sendFile('index.html', {root: __dirname })
+    res.sendFile('megumi.html', {root: __dirname })
 });
 
 
-
-async function zerochan(charname, length, res) {
-  zc.getSearch(charname, Math.floor(Math.random() * length) + 1).then(async (img) => {
-      const num = Math.floor(Math.random() * 23) + 1;
-      if (img[num]?.image) {
-        const images = img[num].image;
-        request({
-          url: images,
-          encoding: null
-        }, 
-        (err, resp, buffer) => {
-          if (!err && resp.statusCode === 200){
-            res.set("Content-Type", "image/jpeg");
-            res.send(resp.body);
-          } else {
-            zerochan('Genshin+Impact', 99, res);
-          }
-        });
-          console.log(images)
-  }
-})
-}
 
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log("Server is listening in port" + PORT);
+  console.log("Megumi Server is Active in Port: " + PORT);
 });
 
           
