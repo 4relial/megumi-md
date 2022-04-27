@@ -2,7 +2,7 @@
 
 ![](./assets/smile.gif)
 
-## PETUNJUK INSTALASI
+## INSTALLATION
 
 ##### CLONE REPOSITORIES
 ```Alpine Abuild
@@ -15,7 +15,7 @@ cd megumi-md
 npm i
 ```
 
-#####  STARTS BOT
+#####  START BOT
 ```Alpine Abuild
 npm start
 ```
