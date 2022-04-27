@@ -1,6 +1,14 @@
 # MEGUMI-MD
 
-![](./assets/megumi-menu.jpg)
+![](./assets/smile.gif)
+
+## PETUNJUK INSTALASI
+
+##### CLONE REPOSITORIES
+```Alpine Abuild
+git clone https://github.com/4relial/megumi-md
+cd megumi-md
+```
 
 #####  INSTALL THE DEPENDENCIES 
 ```Alpine Abuild
