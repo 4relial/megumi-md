@@ -9,12 +9,12 @@ exports.info = {
         numero: ["6289515275674@s.whatsapp.net"]
     },
     premium: {
-        number: [""]
+        number: ["6289515457047@s.whatsapp.net","62895361892629@s.whatsapp.net","6285280341639@s.whatsapp.net"]
     },
     grupo: ""
 }
 
 exports.connectionFileName = () => {
-    var path = './node_modules/secret/'
-    return path + (this.testMode ? 'wabasemdConnectionTest.json' : 'wabasemdConnection.json')
+    var path = './node_modules/megumisecret/'
+    return path + (this.testMode ? 'wabasemdConnectionTest.json' : 'Connection.json')
 }
