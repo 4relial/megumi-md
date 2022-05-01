@@ -17,7 +17,7 @@ npm i
 
 #####  START BOT
 ```Alpine Abuild
-node index.js1
+node index.js
 ```
 
 # ⚠ ATTENTION ⚠
