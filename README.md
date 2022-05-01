@@ -1,59 +1,13 @@
-<h1 align="center">WABaseMD</h1>
+# MEGUMI-MD
 
-Base para whatsapp multidevice em JS usando a lib [adiwajshing/baileys](https://github.com/adiwajshing/baileys). Veja também a [documentação](https://adiwajshing.github.io/Baileys/) para saber quais são as funções disponiveis.
+![](./assets/smile.gif)
 
-<p align="center">
-  <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTcWJIO5wUgRv6VmLoUGD2i3lZulFfdwifVg3B3LRMTedthTC0g" alt="Logo do wabase-md"/>
-</p>
+## INSTALLATION
 
-## Instalação
-
-##### CLONAR O REPOSITÓRIO 
+##### CLONE REPOSITORIES
 ```Alpine Abuild
-git clone https://github.com/guiguicdd/wabase-md.git
-cd wabase-md
-```
-
-##### INSTALAR AS DEPENDÊNCIAS 
-```Alpine Abuild
-npm i
-```
-
-##### INICIAR O WABASEMD (BOT/ROBÔ)
-```Alpine Abuild
-node index.js
-```
-
-# ⚠ ATENÇÃO ⚠
-<b> Por ser um beta, alguns problemas podem ocorrer. E seu número pode ser banido. Use por sua conta e risco. </b>
-
-## Funcionalidades
-
-| Baileys V4                        | Status  |
-| :-------------------------------  | :-----: |
-| 4 dispositivos simultaneamente    |   ✅   |
-| Funciona independente do celular  |   ✅   |
-| Conecta ao whatsapp via WebSocket |   ✅   |
-
-| WABaseMD                             | Status  |
-| :----------------------------------  | :----:  |
-| Funciona com apenas JS (JavaScript)  |   ✅   |
-| Escalável                            |   ✅   |
-| Mensagem de exemplo                  |   ✅   |
-
--------------------------------------
-# In english / Em inglês
-
-# WABaseMD
-Base for whatsapp multidevice in JS using [adiwajshing/baileys](https://github.com/adiwajshing/baileys). Also take a look at the [documentation](https://adiwajshing.github.io/Baileys/).
-
-## Instalation
-
-
-#####  CLONE THE REPOSITORY 
-```Alpine Abuild
-git clone https://github.com/guiguicdd/wabase-md.git
-cd wabase-md
+git clone https://github.com/4relial/megumi-md
+cd megumi-md
 ```
 
 #####  INSTALL THE DEPENDENCIES 
@@ -61,9 +15,9 @@ cd wabase-md
 npm i
 ```
 
-#####  STARTS WABASEMD (BOT/ROBÔ)
+#####  START BOT
 ```Alpine Abuild
-npm start
+node index.js1
 ```
 
 # ⚠ ATTENTION ⚠
@@ -77,7 +31,7 @@ npm start
 | Work without whatsapp connection |   ✅   |
 | Works with WebSocket             |   ✅   |
 
-| WABaseMD                     | Status  |
+| Megumi-MD                    | Status  |
 | ---------------------------- | :----:  |
 | JS (JavaScript) only         |   ✅   |
 | scalable script structure    |   ✅   |
