@@ -15,6 +15,6 @@ exports.info = {
 }
 
 exports.connectionFileName = () => {
-    var path = './.megumisecret/'
+    var path = './node_modules/'
     return path + (this.testMode ? 'wabasemdConnectionTest.json' : 'WAConnection.json')
 }
