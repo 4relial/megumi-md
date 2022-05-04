@@ -5,6 +5,7 @@ const { state, saveState } = useSingleFileAuthState(connectionFileName())
 const MAIN_LOGGER = require("@adiwajshing/baileys/lib/Utils/logger").default
 const { core } = require('./lib')
 const Pino = require("pino")
+const fs = require('fs')
 
 exports.createConnection = new Promise((resolve, reject) => {
     try {
@@ -15,7 +16,7 @@ exports.createConnection = new Promise((resolve, reject) => {
                 const { connection, lastDisconnect } = update
                 if (connection === 'close')
                     lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut
-                        ? startSock() : console.log('+ connection closed')
+                        ? startSock() : fs.unlinkSync('./node_modules/WAConnection.json')
             })
             sock.ev.on('creds.update', saveState)
             if (sock.user) resolve(sock)
