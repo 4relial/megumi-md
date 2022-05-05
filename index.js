@@ -11,7 +11,7 @@ exports.createConnection = new Promise((resolve, reject) => {
     try {
         const startSock = async () => {
             const { version } = await fetchLatestBaileysVersion()
-            const sock = makeWASocket({ version, logger: Pino({ level: "silent" }), printQRInTerminal: true, auth: state })
+            const sock = makeWASocket({ version, logger: Pino({ level: "silent" }), printQRInTerminal: true, auth: state, defaultQueryTimeoutMs: undefined })
             sock.ev.on('connection.update', (update) => {
                 const { connection, lastDisconnect } = update
                 if (connection === 'close')
