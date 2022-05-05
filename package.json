@@ -10,10 +10,9 @@
     "start": "node index.js"
   },
   "keywords": [
-    "termux",
+    "replit",
     "whatsapp",
-    "2021",
-    "wabase-md",
+    "2022",
     "base",
     "baileys",
     "bot"
