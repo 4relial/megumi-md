@@ -22,6 +22,7 @@
   "dependencies": {
     "@adiwajshing/baileys": "^4.1.0",
     "@adiwajshing/keyed-db": "^0.2.4",
+    "anilist-node": "^1.12.0",
     "axios": "^0.21.1",
     "cfonts": "^2.10.1",
     "cheerio": "^1.0.0-rc.2",
@@ -45,6 +46,7 @@
     "sharp": "^0.29.3",
     "spinnies": "^0.5.1",
     "tiktok-scraper-without-watermark": "^1.1.3",
+    "trace.moe.ts": "^1.3.9",
     "video-converter": "^1.0.0",
     "wa-sticker-formatter": "^4.3.2",
     "youtube-mp3-downloader": "^0.7.10",
