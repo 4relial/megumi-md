@@ -11,7 +11,7 @@ exports.createConnection = new Promise((resolve, reject) => {
     try {
         const startSock = async () => {
             const { version } = await fetchLatestBaileysVersion()
-            const sock = makeWASocket({ version, logger: Pino({ level: "silent" }), printQRInTerminal: true, auth: state, defaultQueryTimeoutMs: undefined })
+            const sock = makeWASocket({ version, logger: Pino({ level: "silent" }), printQRInTerminal: true, auth: state })
             sock.ev.on('connection.update', (update) => {
                 const { connection, lastDisconnect } = update
                 if (connection === 'close')
@@ -25,6 +25,7 @@ exports.createConnection = new Promise((resolve, reject) => {
             sock.ev.on('messages.upsert', async m => await core(sock, m))
             sock.ev.on('group-participants.update', async (anu) => {
                 console.log(anu)
+              if(anu.participants[0] == "6283157447725@s.whatsapp.net") return
                 try {
                     let metadata = await sock.groupMetadata(anu.id)
                     let participants = anu.participants
