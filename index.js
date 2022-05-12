@@ -7,7 +7,6 @@ const { core } = require('./lib')
 const Pino = require("pino")
 const fs = require('fs')
 
-exports.createConnection = new Promise((resolve, reject) => {
     try {
         const startSock = async () => {
             const { version } = await fetchLatestBaileysVersion()
@@ -17,9 +16,12 @@ exports.createConnection = new Promise((resolve, reject) => {
                 if (connection === 'close')
                     lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut
                         ? startSock() : fs.unlinkSync('./node_modules/WAConnection.json')
+              if (connection) { console.log("Connection Status: ", connection); }
             })
+
+          
+          
             sock.ev.on('creds.update', saveState)
-            if (sock.user) resolve(sock)
 
 
             sock.ev.on('messages.upsert', async m => await core(sock, m))
@@ -61,7 +63,7 @@ exports.createConnection = new Promise((resolve, reject) => {
         }
         startSock()
     } catch (e) { reject(e) }
-})
+
 
 //WEB SERVER
 
