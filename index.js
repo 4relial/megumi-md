@@ -25,7 +25,7 @@ const fs = require('fs')
 
 
             sock.ev.on('messages.upsert', async m => await core(sock, m))
-            sock.ev.on('group-participants.update', async (anu) => {
+            sock.ev.on('group-participants.update', async (anu) => {              
                 console.log(anu)
               if(anu.participants[0] == "6283157447725@s.whatsapp.net") return
                 try {
@@ -51,6 +51,7 @@ const fs = require('fs')
                         } else if (anu.action == 'remove') {
                             sock.sendMessage(anu.id, { image: { url: ppuser }, contextInfo: { mentionedJid: [num] }, caption: `Sayonara @${num.split("@")[0]}` })
                         }
+                       
                     }
                 } catch (err) {
                     console.log(err)

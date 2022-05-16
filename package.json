@@ -22,6 +22,7 @@
   "dependencies": {
     "@adiwajshing/baileys": "^4.1.0",
     "@adiwajshing/keyed-db": "^0.2.4",
+    "@tensorflow/tfjs": "^3.17.0",
     "anilist-node": "^1.12.0",
     "axios": "^0.21.1",
     "cfonts": "^2.10.1",
@@ -37,6 +38,7 @@
     "link-preview-js": "^2.1.13",
     "mathjs": "^10.4.3",
     "node-fetch": "^2.6.1",
+    "nsfwjs": "^2.4.1",
     "pino": "^7.11.0",
     "pm2": "^5.2.0",
     "qrcode-terminal": "^0.12.0",
