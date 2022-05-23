@@ -5,5 +5,6 @@
         pkgs.ffmpeg
         pkgs.imagemagick
         pkgs.git
+        pkgs.nodePackages.pm2
     ];
 }

@@ -1,27 +1,46 @@
 
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require("@adiwajshing/baileys")
-const { connectionFileName } = require("./config/configFile")
-const { state, saveState } = useSingleFileAuthState(connectionFileName())
+const { default: makeWASocket, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion, useMultiFileAuthState } = require("@adiwajshing/baileys")
 const MAIN_LOGGER = require("@adiwajshing/baileys/lib/Utils/logger").default
 const { core } = require('./lib')
 const Pino = require("pino")
 const fs = require('fs')
+const { getMessage, saveMessage, deleteMessage } = require('./lib/store')
 
     try {
         const startSock = async () => {
             const { version } = await fetchLatestBaileysVersion()
-            const sock = makeWASocket({ version, logger: Pino({ level: "silent" }), printQRInTerminal: true, auth: state })
+
+          //Retry Handler
+          const retryMessageHandler = async message => {
+    console.log("retry for send message !!!!!")
+    let text = getMessage(message.id)
+    deleteMessage(message.id)
+    return {
+        conversation: text
+    }
+}
+          const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info')
+          
+            const sock = makeWASocket({ 
+              version, 
+              logger: Pino({ level: "silent" }), 
+              printQRInTerminal: true, 
+              auth: state,
+              defaultQueryTimeoutMs: undefined,
+	          	getMessage: retryMessageHandler
+                                      })
+          
             sock.ev.on('connection.update', (update) => {
                 const { connection, lastDisconnect } = update
                 if (connection === 'close')
                     lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut
-                        ? startSock() : fs.unlinkSync('./node_modules/WAConnection.json')
+                        ? startSock() : fs.unlinkSync('./connect.json')
               if (connection) { console.log("Connection Status: ", connection); }
             })
 
           
           
-            sock.ev.on('creds.update', saveState)
+            sock.ev.on('creds.update', saveCreds)
 
 
             sock.ev.on('messages.upsert', async m => await core(sock, m))
