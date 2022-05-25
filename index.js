@@ -6,6 +6,7 @@ const { core } = require('./lib')
 const logger = MAIN_LOGGER.child({ })
 const Pino = require("pino")
 const fs = require('fs')
+const { MessageRetryHandler } = require('./lib/store')
 
   try {
         const startSock = async () => {
