@@ -21,11 +21,11 @@ node index.js
 ```
 
 # ⚠ ATTENTION ⚠
-<b> It´s a beta, so issue is spected to be apppering. Use at your own risk. </b>
+<b> It´s a beta, so issue is spected to be apppering. Use at your own risk. </b><br>
 <b> You can use this bot freely. but Don't sell this bot!! </b>
 
 # ⚠ DONATION ⚠
-<b> Dana/OVO/Go-Pay: 082284739859</b>
+<b> Dana/OVO/Go-Pay: 082284739859</b><br>
 <b> other payment: [MyWhatsApp](https://wa.me/6289515275674)</b>
 
 ## Functionalities
