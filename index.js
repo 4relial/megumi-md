@@ -1,33 +1,26 @@
-
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion, useMultiFileAuthState } = require("@adiwajshing/baileys")
+const { default: makeWASocket, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion, msgRetryCounterMap } = require("@adiwajshing/baileys")
+const { connectionFileName } = require("./config/configFile")
+const { state, saveState } = useSingleFileAuthState(connectionFileName())
 const MAIN_LOGGER = require("@adiwajshing/baileys/lib/Utils/logger").default
 const { core } = require('./lib')
+const logger = MAIN_LOGGER.child({ })
 const Pino = require("pino")
 const fs = require('fs')
-const { getMessage, saveMessage, deleteMessage } = require('./lib/store')
 
-    try {
+  try {
         const startSock = async () => {
             const { version } = await fetchLatestBaileysVersion()
 
           //Retry Handler
-          const retryMessageHandler = async message => {
-    console.log("retry for send message !!!!!")
-    let text = getMessage(message.id)
-    deleteMessage(message.id)
-    return {
-        conversation: text
-    }
-}
-          const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info')
+const handler = new MessageRetryHandler();
           
             const sock = makeWASocket({ 
               version, 
               logger: Pino({ level: "silent" }), 
               printQRInTerminal: true, 
               auth: state,
-              defaultQueryTimeoutMs: undefined,
-	          	getMessage: retryMessageHandler
+              msgRetryCounterMap,
+	          	getMessage: handler.messageRetryHandler
                                       })
           
             sock.ev.on('connection.update', (update) => {
@@ -37,10 +30,11 @@ const { getMessage, saveMessage, deleteMessage } = require('./lib/store')
                         ? startSock() : fs.unlinkSync('./connect.json')
               if (connection) { console.log("Connection Status: ", connection); }
             })
+          
 
           
           
-            sock.ev.on('creds.update', saveCreds)
+            sock.ev.on('creds.update', saveState)
 
 
             sock.ev.on('messages.upsert', async m => await core(sock, m))
