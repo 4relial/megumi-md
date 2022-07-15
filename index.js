@@ -1,47 +1,58 @@
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion, msgRetryCounterMap } = require("@adiwajshing/baileys")
-const { connectionFileName } = require("./config/configFile")
-const { state, saveState } = useSingleFileAuthState(connectionFileName())
+const { default: makeWASocket, AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, MessageRetryMap, useMultiFileAuthState } = require("@adiwajshing/baileys")
 const MAIN_LOGGER = require("@adiwajshing/baileys/lib/Utils/logger").default
 const { core } = require('./lib')
-const logger = MAIN_LOGGER.child({ })
 const Pino = require("pino")
 const fs = require('fs')
-const { MessageRetryHandler } = require('./lib/store')
+const logger = MAIN_LOGGER.child({ })
 
   try {
         const startSock = async () => {
-            const { version } = await fetchLatestBaileysVersion()
 
           //Retry Handler
-const handler = new MessageRetryHandler();
-          
-            const sock = makeWASocket({ 
-              version, 
-              logger: Pino({ level: "silent" }), 
-              printQRInTerminal: true, 
-              auth: state,
-              msgRetryCounterMap,
-	          	getMessage: handler.messageRetryHandler
-                                      })
-          
+const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info')
+	// fetch latest version of WA Web
+	const { version, isLatest } = await fetchLatestBaileysVersion()
+	console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
+
+const store = makeInMemoryStore({ })
+store.readFromFile('./baileys_store.json')
+setInterval(() => {
+    store.writeToFile('./baileys_store.json')
+}, 10_000)
+
+	const sock = makeWASocket({
+		version,
+		logger: Pino({ level: "silent" }), 
+		printQRInTerminal: true,
+		auth: state,
+		// implement to handle retries
+		getMessage: async key => {
+			return {
+				conversation: 'Failed to Send Message'
+			}
+		}
+	})
+          store.bind(sock.ev)
+
             sock.ev.on('connection.update', (update) => {
                 const { connection, lastDisconnect } = update
                 if (connection === 'close')
                     lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut
-                        ? startSock() : fs.unlinkSync('./connect.json')
+                        ? startSock() : console.log("anu")
               if (connection) { console.log("Connection Status: ", connection); }
             })
           
 
           
           
-            sock.ev.on('creds.update', saveState)
+            sock.ev.on('creds.update', saveCreds)
 
 
             sock.ev.on('messages.upsert', async m => await core(sock, m))
             sock.ev.on('group-participants.update', async (anu) => {              
                 console.log(anu)
               if(anu.participants[0] == "6283157447725@s.whatsapp.net") return
+              if(anu.participants.length > 2) return
                 try {
                     let metadata = await sock.groupMetadata(anu.id)
                     let participants = anu.participants
