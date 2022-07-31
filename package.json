@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "node start.js",
     "dev": "node anu.js"
   },
   "keywords": [
