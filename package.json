@@ -2,7 +2,7 @@
   "name": "megumi-md",
   "version": "2.1.000",
   "description": "Just for Fun",
-  "main": "index.js",
+  "main": "start.js",
   "directories": {
     "lib": "lib"
   },
@@ -43,7 +43,6 @@
     "remove.bg": "^1.3.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "sharp": "^0.29.3",
     "spinnies": "^0.5.1",
     "tiktok-scraper-without-watermark": "^1.1.3",
     "trace.moe.ts": "^1.3.9",
