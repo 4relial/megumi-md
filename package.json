@@ -29,6 +29,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "fbdownload": "^0.0.1",
+    "file-type": "^16.5.3",
     "genshin-db": "^4.1.1",
     "get-youtube-id": "^1.0.1",
     "got": "^11.8.1",
