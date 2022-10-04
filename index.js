@@ -1,4 +1,4 @@
-const { default: makeWASocket, AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, MessageRetryMap, useMultiFileAuthState, getMessageFromStore } = require("@adiwajshing/baileys")
+const { default: makeWASocket, AnyMessageContent, makeCacheableSignalKeyStore, delay, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, MessageRetryMap, useSingleFileAuthState, useMultiFileAuthState, getMessageFromStore } = require("@adiwajshing/baileys")
 const MAIN_LOGGER = require("@adiwajshing/baileys/lib/Utils/logger").default
 const { core } = require('./lib')
 const Pino = require("pino")
@@ -11,39 +11,49 @@ const { global } = require('./lib/global')
 
 async function startSock(anu) {
 try {
-    const { state, saveCreds } = await useMultiFileAuthState('.state')
+    const { state, saveCreds } = await useMultiFileAuthState('multi_state/state')
+    // const { state, saveState } = useSingleFileAuthState('./state.json')
     // fetch latest version of WA Web
     const { version, isLatest } = await fetchLatestBaileysVersion()
     console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
+  
     const store = makeInMemoryStore({})
-    store.readFromFile('./baileys_store.json')
+    store.readFromFile('./multi_state/store.json')
+    // store.readFromMultiFiles('./baileys_store/')
     setInterval(() => {
-        store.writeToFile('./baileys_store.json')
+         store.writeToFile('./multi_state/store.json')
+        // store.writeToMultiFiles('./baileys_store/')
     }, 10_000)
 
     const sock = makeWASocket({
-        version,
-        logger: Pino({ level: "silent" }),
+		version,
+		logger: Pino({ level: "silent" }),
         printQRInTerminal: true,
         browser: ['Megumi MD', 'Safari', '9.4.5'],
-        auth: state,
-        // implement to handle retries
-        getMessage: async key => {
-            if (store) {
-                const msg = await store.loadMessage(key.remoteJid, key.id, undefined)
-                return msg?.message || undefined
-            }
+        MessageRetryMap,
+		auth: {
+			creds: state.creds,
+			/** caching makes the store faster to send/recv messages */
+			keys: makeCacheableSignalKeyStore(state.keys, logger),
+		},
+		generateHighQualityLinkPreview: true,
+		// implement to handle retries
+		getMessage: async key => {
+			if(store) {
+				const msg = await store.loadMessage(key.remoteJid, key.id)
+				return msg?.message || undefined
+			}
 
-            // only if store is present
-            return {
-                conversation: 'Terjadi Kesalahan, Ulangi Command!'
-            }
-        }
-    })
+			// only if store is present
+			return {
+				conversation: 'Terjadi Kesalahan, Ulangi Command!'
+			}
+		}
+	})
 
     store.bind(sock.ev)
-
-        sock.ev.on('connection.update', (update) => {
+  
+   sock.ev.on('connection.update', (update) => {
 
             const { connection, lastDisconnect, qr } = update
 
@@ -53,10 +63,7 @@ try {
                 } else {
                     try {
                         var rimraf = require("rimraf");
-                        rimraf(".state", function () { console.log("done"); });
-                        if (fs.existsSync('./baileys_store.json')) {
-                            fs.unlinkSync('./baileys_store.json')
-                        }
+                        rimraf("./multi_state/*", function () { console.log("done"); });
                     } finally {
                         startSock()
                     }
@@ -73,9 +80,8 @@ try {
         })
 
 
-
-
-        sock.ev.on('creds.update', saveCreds)
+    // sock.ev.on('creds.update', saveState)
+    sock.ev.on('creds.update', saveCreds)
 
 
         sock.ev.on('messages.upsert', async (m) => {
