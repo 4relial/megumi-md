@@ -1,17 +1,14 @@
-
 exports.info = {
     prefix: '.',
       prefix2: '#',
       owner: {
           nome: "4relial",
-          number: "6289515275674@s.whatsapp.net",
-          numero: ["6289515275674@s.whatsapp.net"]
+          number: "Your Owner number",
+          numero: ["Your Owner Number"]
       }, 
       bot: {
           name: "Megumi Katou",
-          number: "6283157447725@s.whatsapp.net"
+          number: "Your Bot Number"
       },
       grupo: ""
   }
-  
-  exports.connectionFileName = './connect.json'
