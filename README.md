@@ -4,6 +4,23 @@
 
 ## INSTALLATION
 
+### Require
+1. [nodejs](https://nodejs.org/en/download) 16x/17x
+2. [ffmpeg](https://ffmpeg.org)
+3. [libwebp](https://developers.google.com/speed/webp/download)
+
+### Ffmpeg Instalation
+- For Windows User, you can see this website, [WikiHow](https://www.wikihow.com/Install-FFmpeg-on-Windows).<br />
+- For Linux User, you can use your own package manager, below are for example
+
+```bash
+# apt
+apt install ffmpeg -y
+
+# pacman
+pacman -S ffmpeg
+```
+
 ##### CLONE REPOSITORIES
 ```Alpine Abuild
 git clone https://github.com/4relial/megumi-md
