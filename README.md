@@ -7,7 +7,7 @@
 #### REQUIRE
 1. [nodejs](https://nodejs.org/en/download) 16x/17x
 2. [ffmpeg](https://ffmpeg.org)
-3. [libwebp](https://developers.google.com/speed/webp/download)
+3. [ImageMagick](https://www.imagemagick.org)
 
 #### FFMPEG INSTALLATION
 - For Windows User, you can see this website, [WikiHow](https://www.wikihow.com/Install-FFmpeg-on-Windows).<br />
