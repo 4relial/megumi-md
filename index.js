@@ -31,11 +31,7 @@ try {
         printQRInTerminal: true,
         browser: ['Megumi MD', 'Safari', '9.4.5'],
         MessageRetryMap,
-		auth: {
-			creds: state.creds,
-			/** caching makes the store faster to send/recv messages */
-			keys: makeCacheableSignalKeyStore(state.keys, logger),
-		},
+		auth: state,
 		generateHighQualityLinkPreview: true,
 		// implement to handle retries
 		getMessage: async key => {
