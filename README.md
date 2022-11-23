@@ -39,7 +39,6 @@ node index.js
 
 # ⚠ ATTENTION ⚠
 <b> It´s a beta, so issue is spected to be apppering. Use at your own risk. </b><br>
-<b> You can use this bot freely. but Don't sell this bot!! </b>
 
 
 ## Functionalities
