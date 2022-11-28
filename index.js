@@ -143,7 +143,7 @@ try {
                 let participants = anu.participants
                 for (let num of participants) {
                     if (anu.action == 'remove') {
-                        delGrup(anu.id)
+//                        
                     } else if (anu.action == 'promote') {
                         sock.sendMessage(anu.id, { mentions: [num] , text: `Chisato menjadi Admin :)` })
                     } else if (anu.action == 'demote') {
