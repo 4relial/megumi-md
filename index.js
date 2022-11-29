@@ -1,4 +1,5 @@
-const { default: makeWASocket, AnyMessageContent, makeCacheableSignalKeyStore, delay, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, MessageRetryMap, useSingleFileAuthState, useMultiFileAuthState, getMessageFromStore } = require("@adiwajshing/baileys")
+"use strict"
+const { default: makeWASocket, AnyMessageContent, isJidBroadcast, jidNormalizedUser, makeCacheableSignalKeyStore, delay, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, MessageRetryMap, useSingleFileAuthState, useMultiFileAuthState, msgRetryCounterMap, getMessageFromStore } = require("@adiwajshing/baileys")
 const MAIN_LOGGER = require("@adiwajshing/baileys/lib/Utils/logger").default
 const { core } = require('./lib')
 const Pino = require("pino")
@@ -6,95 +7,127 @@ const fs = require('fs')
 const conf = require('./config/configFile').info
 const qrcode = require("qr-image");
 const logger = MAIN_LOGGER.child({})
+const rimraf = require('rimraf')
 const { global } = require('./lib/global')
+const { getBuffer, Base64, Spam, SpamP, SpamX, Muted } = require('./lib/functions')
+let sys = require('util')
+let exec = require('child_process').exec;
+rimraf('./assets/downloads/*', function () {
+    console.log('Data Dihapus!')
+})
 
 
-async function startSock(anu) {
-try {
+const startSock = async (anu) => {
     const { state, saveCreds } = await useMultiFileAuthState('multi_state/state')
-    // const { state, saveState } = useSingleFileAuthState('./state.json')
     // fetch latest version of WA Web
     const { version, isLatest } = await fetchLatestBaileysVersion()
     console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
-  
+
     const store = makeInMemoryStore({})
-    store.readFromFile('./multi_state/store.json')
-    // store.readFromMultiFiles('./baileys_store/')
+    store.readFromFile('./assets/downloads/store.json')
     setInterval(() => {
-         store.writeToFile('./multi_state/store.json')
-        // store.writeToMultiFiles('./baileys_store/')
+        store.writeToFile('./assets/downloads/store.json')
     }, 10_000)
-
     const sock = makeWASocket({
-		version,
-		logger: Pino({ level: "silent" }),
+        version,
+        logger: Pino({ level: "silent" }),
         printQRInTerminal: true,
+        shouldIgnoreJid: jid => isJidBroadcast(jid),
         browser: ['Megumi MD', 'Safari', '9.4.5'],
-        MessageRetryMap,
-		auth: state,
-		generateHighQualityLinkPreview: true,
-		// implement to handle retries
-		getMessage: async key => {
-			if(store) {
-				const msg = await store.loadMessage(key.remoteJid, key.id)
-				return msg?.message || undefined
-			}
+        auth: {
+            creds: state.creds,
+            /** caching makes the store faster to send/recv messages */
+            keys: makeCacheableSignalKeyStore(state.keys, logger),
+        },
+        patchMessageBeforeSending: (message) => {
+            const requiresPatch = !!(
+                message.buttonsMessage ||
+                // || message.templateMessage
+                message.listMessage
+            );
+            if (requiresPatch) {
+                message = {
+                    viewOnceMessage: {
+                        message: {
+                            messageContextInfo: {
+                                deviceListMetadataVersion: 2,
+                                deviceListMetadata: {},
+                            },
+                            ...message,
+                        },
+                    },
+                };
+            }
 
-			// only if store is present
-			return {
-				conversation: 'Terjadi Kesalahan, Ulangi Command!'
-			}
-		}
-	})
+            return message;
+        },
+        // implement to handle retries
+        getMessage: async key => {
+            if (store) {
+                // if (alert.length < 4) alert.push(1)
+                const msg = await store.loadMessage(key.remoteJid, key.id)
+                return msg?.message || undefined
+            }
+
+            // only if store is present
+            return {
+                conversation: 'Failed to provide message'
+            }
+        }
+    })
 
     store.bind(sock.ev)
-  
-   sock.ev.on('connection.update', (update) => {
 
-            const { connection, lastDisconnect, qr } = update
+    sock.ev.on('connection.update', (update) => {
 
-            if (connection === 'close')
-                if (lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut) {
-                    startSock()
-                } else {
-                    try {
-                        var rimraf = require("rimraf");
-                        rimraf("./multi_state/*", function () { console.log("done"); });
-                    } finally {
-                        startSock()
-                    }
-                }
+        const { connection, lastDisconnect, qr } = update
 
-            if (connection) { console.log("Connection Status: ", connection); }
-            if (qr !== undefined) {
-                qrcode.image(qr, { type: 'png', size: 20 }).pipe(fs.createWriteStream('./img.png'))
+        if (connection === 'close')
+            if (lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut) {
+                startSock()
             } else {
-                if (fs.existsSync('./img.png')) {
-                    fs.unlinkSync('./img.png')
+                try {
+                    rimraf("./multi_state/state/*", function () { console.log("done"); });
+                } finally {
+                    startSock()
                 }
             }
-        })
+
+        if (connection) { console.log("Connection Status: ", connection); }
+        if (qr !== undefined) {
+            qrcode.image(qr, { type: 'png', size: 20 }).pipe(fs.createWriteStream('./img.png'))
+        } else {
+            if (fs.existsSync('./img.png')) {
+                fs.unlinkSync('./img.png')
+            }
+        }
+    })
 
 
     // sock.ev.on('creds.update', saveState)
     sock.ev.on('creds.update', saveCreds)
 
+    async function sendTyping(f = from) {
+        await sock.presenceSubscribe(f)
+        await delay(500)
+        await sock.sendPresenceUpdate('composing', f)
+        await delay(2000)
+        await sock.sendPresenceUpdate('paused', f)
+    }
 
-        sock.ev.on('messages.upsert', async (m) => {
+    console.info = async function () {
+        if (!require("util").format(...arguments).includes("Closing session: SessionEntry")) return
+        if (!require("util").format(...arguments).includes("Removing old closed session: SessionEntry")) return
+        // if (!require("util").format(...arguments).includes("Session error:MessageCounterError:")) 
+    }
 
+    sock.ev.on('messages.upsert', async ({ messages, type }) => {
+        if (type !== "notify") return
         try {
-
-            mei = global.d.verificarMei(m)
+            // console.log(type)
+            let mei = global.d.verificarMei(messages)
             if (!mei) return
-
-            const from = mei.key.remoteJid
-            var group = from.endsWith('@g.us')
-            let sender = group ? mei.key.participant : mei.key.remoteJid
-            let fromPC = group ? sender.includes(':') ? true : false : false
-            sender = fromPC ? sender.split(':')[0] + '@s.whatsapp.net' : sender
-
-            await sock.readMessages([mei.key])
-            await core(sock, m)
+            await core(sock, mei)
         } catch (e) {
             if (e.toString().includes('this.isZero')) return
             var today = new Date();
@@ -104,33 +137,118 @@ try {
             console.log(`${dateTime}>>>> `, e, '<<<<')
         }
     })
-    
-        sock.ev.on('group-participants.update', async (anu) => {
-          if(!anu.participants.includes(conf.bot.number)) {
+
+    sock.ev.on('call', async (m) => {
+        const call = m[0]
+        if (call.status == 'offer') {
+            console.log("Call From: " + call.from)
+            await sock.rejectCall(call.id, call.from);
+            if (!call.isGroup) {
+                await sendTyping(call.from)
+                await delay(100)
+                await sock.sendMessage(call.from, { text: `Panggilan terdeteksi, kamu di blok secara otomatis\nSilakan hubungi owner jika tidak sengaja` })
+                const vcard = 'BEGIN:VCARD\n' // metadata of the contact card
+                    + 'VERSION:3.0\n'
+                    + 'FN:Owner \n' // full name
+                    + 'ORG:Blessing Software;\n' // the organization of the contact
+                    + 'TEL;type=CELL;type=VOICE;waid=6289515275674:+62 895 1527 5674\n' // WhatsApp ID + phone number
+                    + 'END:VCARD'
+                const sentMsg = await sock.sendMessage(
+                    call.from,
+                    {
+                        contacts: {
+                            displayName: 'Yae',
+                            contacts: [{ vcard }]
+                        }
+                    }
+                )
+                await delay(5000)
+                await sock.updateBlockStatus(call.from, "block")
+                return
+            }
+        }
+    })
+
+    sock.ev.on('group-participants.update', async (anu) => {
+        if (!anu.participants.includes(conf.bot.number)) {
             console.log(anu)
             if (anu.participants.length > 2) return
             try {
                 let metadata = await sock.groupMetadata(anu.id)
                 let participants = anu.participants
+                const grup = await db.getgroup(anu.id, metadata.subject)
+
                 for (let num of participants) {
+                    let options = { width: 300, height: 300 }
+                    let ppuser
                     // Get Profile Picture User
                     try {
-                        ppuser = await sock.profilePictureUrl(num, 'image')
+                        ppuser = await sock.profilePictureUrl(num)
+                        ppuser = await getBuffer(ppuser)
                     } catch {
-                        ppuser = './assets/pp.jpg'
+                        try {
+                            ppuser = await sock.profilePictureUrl(anu.id)
+                            ppuser = await getBuffer(ppuser)
+                        } catch {
+                            ppuser = fs.readFileSync('./assets/pp.jpg')
+                        }
                     }
 
-                    // Get Profile Picture Group
-                    try {
-                        ppgroup = await sock.profilePictureUrl(anu.id, 'image')
-                    } catch {
-                        ppgroup = './assets/pp.jpg'
+                    let Welcomer = `Halo @${num.split("@")[0]} Selamat Datang di Grup *${metadata.subject}*`
+                    let Bye = `Sayonara @${num.split("@")[0]}`
+                    if (grup.welcome) {
+                        Welcomer = `「@${num.split("@")[0]}」\n` + grup.welcome
+                    }
+                    if (grup.byebye) {
+                        Bye = `「@${num.split("@")[0]}」\n` + grup.byebye
                     }
 
                     if (anu.action == 'add') {
-                        sock.sendMessage(anu.id, { mentions: [num] , text: `Halo @${num.split("@")[0]} Selamat Datang di Grup *${metadata.subject}*` })
+                        await sendTyping(anu.id)
+                        sock.relayMessage(
+                            anu.id,
+                            {
+                                extendedTextMessage: {
+                                    text: Welcomer, contextInfo: {
+                                        mentionedJid: [num],
+                                        externalAdReply: {
+                                            title: "𝕄𝕖𝕘𝕦𝕞𝕚 𝕂𝕒𝕥𝕠𝕦",
+                                            body: "❦ Selamat Datang",
+                                            mediaType: 0,
+                                            thumbnail: ppuser,
+                                            sourceUrl: 'https://bit.ly/3eQfDdQ',
+                                            containsAutoReply: false,
+                                            renderLargerThumbnail: false,
+                                            showAdAttribution: false
+                                        },
+                                    }
+                                }
+                            },
+                            {}
+                        )
                     } else if (anu.action == 'remove') {
-                        sock.sendMessage(anu.id, { mentions: [num] , text: `Sayonara @${num.split("@")[0]}` })
+                        await sendTyping(anu.id)
+                        sock.relayMessage(
+                            anu.id,
+                            {
+                                extendedTextMessage: {
+                                    text: Bye, contextInfo: {
+                                        mentionedJid: [num],
+                                        externalAdReply: {
+                                            title: "𝕄𝕖𝕘𝕦𝕞𝕚 𝕂𝕒𝕥𝕠𝕦",
+                                            body: "❦ Bye Bye..",
+                                            mediaType: 0,
+                                            thumbnail: ppuser,
+                                            sourceUrl: 'https://bit.ly/3eQfDdQ',
+                                            containsAutoReply: false,
+                                            renderLargerThumbnail: false,
+                                            showAdAttribution: false
+                                        },
+                                    }
+                                }
+                            },
+                            {}
+                        )
                     }
 
                 }
@@ -142,66 +260,17 @@ try {
             try {
                 let participants = anu.participants
                 for (let num of participants) {
-                    if (anu.action == 'remove') {
-//                        
-                    } else if (anu.action == 'promote') {
-                        sock.sendMessage(anu.id, { mentions: [num] , text: `Chisato menjadi Admin :)` })
-                    } else if (anu.action == 'demote') {
-                        sock.sendMessage(anu.id, { mentions: [num] , text: `Chisato sudah bukan Admin :(` })
+                    if (anu.action == 'promote') {
+                        await sendTyping(anu.id)
+                        sock.sendMessage(anu.id, { mentions: [num], text: `Megumi telah menjadi Admin Grup` })
                     }
                 }
             } catch (err) {
                 console.log(err)
             }
         }
-        })
-} catch (e) { reject(e) }
-    }
+    })
 
-//web
+}
 
-const rimraf = require('rimraf')
-
-startSock()
-
-rimraf('./assets/downloads/*', function () {
-  console.log('Data Dihapus!') 
-})
-
-//WEB SERVER
-
-const express = require("express")
-const cors = require("cors")
-const request = require("request")
-const got = require("got")
-
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-
-app.get("/", (req, res) => {
-    if (fs.existsSync('./img.png')) {
-        res.sendFile(__dirname + '/img.png')
-    } else {
-        res.sendFile(__dirname + '/megumi.html')
-    }
-
-});
-
-app.get("/ping", (req, res) => {
-        res.sendFile(__dirname + '/ping.html')
-});
-
-
-
-const PORT = process.env.PORT || 8080;
-
-app.listen(PORT, () => {
-    console.log("Megumi Server is Active in Port: " + PORT);
-});
-
-
-          //WEB SERVER
+module.exports = { startSock }
