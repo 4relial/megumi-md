@@ -24,9 +24,9 @@ const startSock = async (anu) => {
     console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
 
     const store = makeInMemoryStore({})
-    store.readFromFile('./assets/downloads/store.json')
+    store.readFromFile('./multi_state/store.json')
     setInterval(() => {
-        store.writeToFile('./assets/downloads/store.json')
+        store.writeToFile('./multi_state/store.json')
     }, 10_000)
     const sock = makeWASocket({
         version,
