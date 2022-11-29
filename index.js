@@ -176,7 +176,6 @@ const startSock = async (anu) => {
             try {
                 let metadata = await sock.groupMetadata(anu.id)
                 let participants = anu.participants
-                const grup = await db.getgroup(anu.id, metadata.subject)
 
                 for (let num of participants) {
                     let options = { width: 300, height: 300 }
@@ -196,12 +195,7 @@ const startSock = async (anu) => {
 
                     let Welcomer = `Halo @${num.split("@")[0]} Selamat Datang di Grup *${metadata.subject}*`
                     let Bye = `Sayonara @${num.split("@")[0]}`
-                    if (grup.welcome) {
-                        Welcomer = `「@${num.split("@")[0]}」\n` + grup.welcome
-                    }
-                    if (grup.byebye) {
-                        Bye = `「@${num.split("@")[0]}」\n` + grup.byebye
-                    }
+                   
 
                     if (anu.action == 'add') {
                         await sendTyping(anu.id)
