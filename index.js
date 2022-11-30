@@ -12,9 +12,10 @@ const { global } = require('./lib/global')
 const { getBuffer, Base64, Spam, SpamP, SpamX, Muted } = require('./lib/functions')
 let sys = require('util')
 let exec = require('child_process').exec;
-rimraf('./assets/downloads/*', function () {
-    console.log('Data Dihapus!')
-})
+
+// rimraf('./assets/downloads/*', function () {
+//     console.log('Data Dihapus!')
+// })
 
 
 const startSock = async (anu) => {
