@@ -2,12 +2,12 @@
   "name": "megumi-md",
   "version": "2.7.000",
   "description": "Just for Fun",
-  "main": "index.js",
+  "main": "start.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "node start.js",
     "dev": "node anu.js"
   },
   "keywords": [
