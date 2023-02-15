@@ -1,6 +1,6 @@
 exports.info = {
     prefix: '.',
-      prefix2: '#',
+      prefix2: '-',
       owner: {
           nome: "4relial",
           number: "Your Owner number",
@@ -10,5 +10,6 @@ exports.info = {
           name: "Megumi Katou",
           number: "Your Bot Number"
       },
-      grupo: ""
+      grupo: "",
+  apikeyRemoveBg: " Your ApiKey"
   }
