@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>Gambar Dinamis</title>
+    <style>
+      #container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      
+      #gambar {
+        max-width: 90%;
+        max-height: 70%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <h1>Scan QR Ini Untuk Menjadi Bot</h1>
+      <img id="gambar" src="/gambar" alt="Gambar">
+    </div>
+  </body>
+</html>
+
+<script>
+      const gambar = document.getElementById('gambar');
+      setInterval(() => {
+        gambar.src = '/gambar?' + new Date().getTime();
+      }, 2000);
+</script>

@@ -11,9 +11,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+app.get('/gambar', (req, res) => {
+  const path = __dirname + '/img.png';
+
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+
+  res.sendFile(path, (err) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+});
+
 app.get("/", (req, res) => {
     if (fs.existsSync('./img.png')) {
-        res.sendFile(__dirname + '/img.png')
+       res.sendFile(__dirname + '/qr.html')
     } else {
         res.sendFile(__dirname + '/megumi.html')
     }
