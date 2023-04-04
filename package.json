@@ -20,7 +20,7 @@
   "author": "4relial",
   "license": "MIT",
   "dependencies": {
-    "@adiwajshing/baileys": "github:4relial/Baileys",
+    "@adiwajshing/baileys": "github:adiwajshing/Baileys",
     "@adiwajshing/keyed-db": "^0.2.4",
     "anilist-node": "^1.12.0",
     "axios": "^0.21.1",
