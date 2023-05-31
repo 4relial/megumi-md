@@ -1,5 +1,5 @@
 "use strict"
-const { default: makeWASocket, AnyMessageContent, isJidBroadcast, jidNormalizedUser, makeCacheableSignalKeyStore, delay, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, MessageRetryMap, useSingleFileAuthState, useMultiFileAuthState, msgRetryCounterMap, getMessageFromStore } = require("@adiwajshing/baileys")
+const { default: makeWASocket, AnyMessageContent, isJidBroadcast, jidNormalizedUser, makeCacheableSignalKeyStore, delay, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, MessageRetryMap, useSingleFileAuthState, useMultiFileAuthState, msgRetryCounterMap, getMessageFromStore } = require("@whiskeysockets/baileys")
 const MAIN_LOGGER = require("@adiwajshing/baileys/lib/Utils/logger").default
 const { core } = require('./lib')
 const Pino = require("pino")
